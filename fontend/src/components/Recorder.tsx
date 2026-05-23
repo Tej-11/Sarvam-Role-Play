@@ -1,22 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { AudioRecorder, RecorderStatus } from "../utils/AudioRecorder";
+import { useRecorderContext } from "../context/RecorderContext";
 import styles from "./Recorder.module.css";
 
 export const Recorder = () => {
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
-
-  const [status, setStatus] = useState<RecorderStatus>("inactive");
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
-  const [audioURL, setAudioURL] = useState<string | null>(null);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+
+  const { audioURL, audioBlob, status, setRecordingData, updateStatus} = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
     audioRecorder.onTimeUpdate((_, formattedTime) => {
       setTimeDisplay(formattedTime);
     });
-    setStatus(audioRecorder.getRecorderStatus);
+    updateStatus(audioRecorder.getRecorderStatus);
     audioRecorderRef.current = audioRecorder;
 
     return () => {
@@ -32,11 +31,11 @@ export const Recorder = () => {
       try {
         if (audioURL) {
           URL.revokeObjectURL(audioURL);
-          setAudioURL(null);
+          setRecordingData(null, null);
         }
         setTimeDisplay("00:00");
         await recorder.startRecording();
-        setStatus(recorder.getRecorderStatus);
+        updateStatus(recorder.getRecorderStatus);
       } catch (error) {
         alert(
           "Microphone access is required to start recording. Please allow access and try again.",
@@ -44,9 +43,8 @@ export const Recorder = () => {
       }
     } else {
       const { blob, url } = await recorder.stopRecording();
-      setAudioBlob(blob);
-      setAudioURL(url);
-      setStatus("inactive");
+      setRecordingData(url, blob);
+      updateStatus("inactive");
 
       if (audioElementRef.current) {
         audioElementRef.current.src = url;
@@ -63,7 +61,7 @@ export const Recorder = () => {
     } else if (status === "paused") {
       recorder.resumeRecording();
     }
-    setStatus(recorder.getRecorderStatus);
+    updateStatus(recorder.getRecorderStatus);
   };
 
   const handleRerecording = async () => {
@@ -82,11 +80,11 @@ export const Recorder = () => {
     try {
       if (audioURL) {
         URL.revokeObjectURL(audioURL);
-        setAudioURL(null);
+        setRecordingData(null, null);
       }
       setTimeDisplay("00:00");
       await recorder.startRecording();
-      setStatus(recorder.getRecorderStatus);
+      updateStatus(recorder.getRecorderStatus);
     } catch (error) {
       alert(
         "Failed to start recording. Please allow microphone access and try again.",
