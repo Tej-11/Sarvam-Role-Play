@@ -1,18 +1,24 @@
 .container {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   padding: 24px;
-  background-color: #f5f5f7;
-  border-radius: 12px;
-  width: 320px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .infoArea {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
 }
 
 .statusText {
@@ -22,75 +28,116 @@
 }
 
 .timer {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 28px;
+  font-weight: 700;
   color: #1d1d1f;
-  font-family: monospace; /* Keeps timer text stable without jumping text shifts */
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
 }
 
 .controls {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .btn {
-  padding: 10px 16px;
+  padding: 12px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 14px;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
+  min-width: 100px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
 }
 
 .btn:active {
-  transform: scale(0.98); /* Native press visual feedback */
+  transform: scale(0.96);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 
 .btnRecord {
-  background-color: #34c759;
+  background: linear-gradient(135deg, #34c759 0%, #2db24f 100%);
   color: #fff;
 }
 
 .btnRecord:hover {
-  background-color: #2db24f;
+  background: linear-gradient(135deg, #40d769 0%, #34c759 100%);
+  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
+  transform: translateY(-2px);
 }
 
 .btnStop {
-  background-color: #ff3b30;
+  background: linear-gradient(135deg, #ff3b30 0%, #e03126 100%);
   color: #fff;
 }
 
 .btnStop:hover {
-  background-color: #e03126;
+  background: linear-gradient(135deg, #ff5445 0%, #ff3b30 100%);
+  box-shadow: 0 4px 16px rgba(255, 59, 48, 0.3);
+  transform: translateY(-2px);
 }
 
 .btnPause {
-  background-color: #ffcc00;
+  background: linear-gradient(135deg, #ffcc00 0%, #e6b800 100%);
   color: #000;
 }
 
 .btnPause:hover {
-  background-color: #e6b800;
+  background: linear-gradient(135deg, #ffd600 0%, #ffcc00 100%);
+  box-shadow: 0 4px 16px rgba(255, 204, 0, 0.3);
+  transform: translateY(-2px);
 }
 
 .btnRerecord {
-  background-color: #8e8e93;
+  background: linear-gradient(135deg, #8e8e93 0%, #7a7a7f 100%);
   color: #fff;
 }
 
 .btnRerecord:hover {
-  background-color: #7a7a7f;
+  background: linear-gradient(135deg, #a8a8ad 0%, #8e8e93 100%);
+  box-shadow: 0 4px 16px rgba(142, 142, 147, 0.3);
+  transform: translateY(-2px);
 }
 
 .playbackContainer {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e5ea;
+  margin-top: 24px;
+  padding: 16px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
 }
 
 .audioNode {
   width: 100%;
+  height: 40px;
+  accent-color: #34c759;
 }

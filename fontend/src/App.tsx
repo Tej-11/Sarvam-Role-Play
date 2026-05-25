@@ -1,17 +1,29 @@
-import React from "react";
+import React, { use } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import { Recorder } from "./components/Recorder";
-import { AudioProvider } from "./context/RecorderContext";
+import { AudioProvider, useRecorderContext } from "./context/RecorderContext";
+import { getAudioTranscript } from "./service/sarvamService";
+import { TranscriptSection } from "./components/TranscriptSection";
 
 function AppContent() {
+const  { audioURL, audioBlob, status, setRecordingData, updateStatus} = useRecorderContext();
+ const  handleTranscribe = () => {
+    if (!audioBlob) {
+      alert("Please record audio before transcribing.");
+      return;
+    }
+    getAudioTranscript(audioBlob);
+  }
 
   return (
     <div className="App">
       <div className="InputSection">
         <Recorder />
+        <button onClick={handleTranscribe}>Transcribe</button>
       </div>
       <div className="TranscriptSection">
+          <TranscriptSection />
       </div>
     </div>
   );
