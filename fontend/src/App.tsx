@@ -8,21 +8,21 @@ import { TranscriptSection } from "./components/TranscriptSection";
 
 function AppContent() {
   const {
-    audioURL,
-    audioBlob,
-    status,
+    playerAudioURL,
+    playerAudioBlob,
+    recorderStatus,
     setRecordingData,
-    updateStatus,
-    audioTranscript,
-    setAudioTranscript,
+    updateRecorderStatus,
+    playerTranscript,
+    setPlayerTranscript
   } = useRecorderContext();
   const handleTranscribe = async () => {
-    if (!audioBlob) {
+    if (!playerAudioBlob) {
       alert("Please record audio before transcribing.");
       return;
     }
-    const transcript = await getAudioTranscript(audioBlob);
-    setAudioTranscript(transcript);
+    const transcript = await getAudioTranscript(playerAudioBlob);
+    setPlayerTranscript(transcript);
   };
 
   return (

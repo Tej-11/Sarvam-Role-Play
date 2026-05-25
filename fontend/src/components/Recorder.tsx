@@ -8,18 +8,18 @@ export const Recorder = () => {
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
 
-  const { audioURL, audioBlob, status, setRecordingData, updateStatus} = useRecorderContext();
+  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus} = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
     audioRecorder.onTimeUpdate((_, formattedTime) => {
       setTimeDisplay(formattedTime);
     });
-    updateStatus(audioRecorder.getRecorderStatus);
+    updateRecorderStatus(audioRecorder.getRecorderStatus);
     audioRecorderRef.current = audioRecorder;
 
     return () => {
-      if (audioURL) URL.revokeObjectURL(audioURL);
+      if (playerAudioURL) URL.revokeObjectURL(playerAudioURL);
     };
   }, []);
 
@@ -27,15 +27,15 @@ export const Recorder = () => {
     const recorder = audioRecorderRef.current;
     if (!recorder) return;
 
-    if (status === "inactive") {
+    if (recorderStatus === "inactive") {
       try {
-        if (audioURL) {
-          URL.revokeObjectURL(audioURL);
+        if (playerAudioURL) {
+          URL.revokeObjectURL(playerAudioURL);
           setRecordingData(null, null);
         }
         setTimeDisplay("00:00");
         await recorder.startRecording();
-        updateStatus(recorder.getRecorderStatus);
+        updateRecorderStatus(recorder.getRecorderStatus);
       } catch (error) {
         alert(
           "Microphone access is required to start recording. Please allow access and try again.",
@@ -44,7 +44,7 @@ export const Recorder = () => {
     } else {
       const { blob, url } = await recorder.stopRecording();
       setRecordingData(url, blob);
-      updateStatus("inactive");
+      updateRecorderStatus("inactive");
 
       if (audioElementRef.current) {
         audioElementRef.current.src = url;
@@ -56,12 +56,12 @@ export const Recorder = () => {
     const recorder = audioRecorderRef.current;
     if (!recorder) return;
 
-    if (status === "recording") {
+    if (recorderStatus === "recording") {
       recorder.pauseRecording();
-    } else if (status === "paused") {
+    } else if (recorderStatus === "paused") {
       recorder.resumeRecording();
     }
-    updateStatus(recorder.getRecorderStatus);
+    updateRecorderStatus(recorder.getRecorderStatus);
   };
 
   const handleRerecording = async () => {
@@ -78,13 +78,13 @@ export const Recorder = () => {
     }
 
     try {
-      if (audioURL) {
-        URL.revokeObjectURL(audioURL);
+      if (playerAudioURL) {
+        URL.revokeObjectURL(playerAudioURL);
         setRecordingData(null, null);
       }
       setTimeDisplay("00:00");
       await recorder.startRecording();
-      updateStatus(recorder.getRecorderStatus);
+      updateRecorderStatus(recorder.getRecorderStatus);
     } catch (error) {
       alert(
         "Failed to start recording. Please allow microphone access and try again.",
@@ -96,11 +96,11 @@ export const Recorder = () => {
     <div className={styles.container}>
       <div className={styles.infoArea}>
         <span>
-          {status === "inactive" && audioURL
+          {recorderStatus === "inactive" && playerAudioURL
             ? "Finished"
-            : status === "recording"
+            : recorderStatus === "recording"
               ? "Recording..."
-              : status === "paused"
+              : recorderStatus === "paused"
                 ? "Paused"
                 : "Ready"}
         </span>
@@ -110,21 +110,21 @@ export const Recorder = () => {
         {/* Start and Stop Recording Buttons */}
         <button
           onClick={handleStartRecording}
-          className={`${styles.btn} ${status === "inactive" ? styles.btnRecord : styles.btnStop}`}
+          className={`${styles.btn} ${recorderStatus === "inactive" ? styles.btnRecord : styles.btnStop}`}
         >
-          {status === "inactive" ? "Start Recording" : "Stop Recording"}
+          {recorderStatus === "inactive" ? "Start Recording" : "Stop Recording"}
         </button>
         {/* Pause and Resume Buttons */}
-        {status !== "inactive" && (
+        {recorderStatus !== "inactive" && (
           <button
             onClick={handlePauseResumeRecording}
             className={`${styles.btn} ${styles.btnPause}`}
           >
-            {status === "recording" ? "Pause" : "Resume"}
+            {recorderStatus === "recording" ? "Pause" : "Resume"}
           </button>
         )}
         {/* Re-record Button */}
-        {status !== 'inactive' && (
+        {recorderStatus !== 'inactive' && (
             <button
                 onClick={handleRerecording}
                 className={`${styles.btn}`}
@@ -134,11 +134,11 @@ export const Recorder = () => {
         )}
       </div>
       {/* Playback Audio Node */}
-      {audioURL && (
+      {playerAudioURL && (
           <div className={styles.playbackContainer}>
               <audio
                   ref={audioElementRef}
-                  src={audioURL}
+                  src={playerAudioURL}
                   controls
                   className={styles.audioNode}
                   onError={(e) => console.error("Audio playback error:", e.currentTarget.error)}
