@@ -21,12 +21,17 @@ interface RecorderContextType {
 
   chatMessages: StoredChatMessage[];
 
+  selectedTargetLanguage: string;
+  selectedSpeaker: string;
+
   setRecordingData: (url: string | null, blob: globalThis.Blob | null) => void;
   updateRecorderStatus: (status: RecorderStatus) => void;
   setPlayerTranscript: (transcript: string | null) => void;
   setNpcTranscript: (transcript: string | null) => void;
   addChatMessage: (message: ChatMessage) => void;
   clearChatMessages: () => void;
+  setSelectedTargetLanguage: (language: string) => void;
+  setSelectedSpeaker: (speaker: string) => void;
 }
 
 const RecorderContext = createContext<RecorderContextType | undefined>(
@@ -44,6 +49,8 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
   const [playerTranscript, setPlayerTranscript] = useState<string | null>(null);
   const [npcTranscript, setNpcTranscript] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<StoredChatMessage[]>([]);
+  const [selectedTargetLanguage, setSelectedTargetLanguage] = useState("en-IN");
+  const [selectedSpeaker, setSelectedSpeaker] = useState("shubh");
 
   const setRecordingData = (
     url: string | null,
@@ -82,13 +89,17 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
         playerTranscript,
         npcTranscript,
         chatMessages,
+        selectedTargetLanguage,
+        selectedSpeaker,
         setRecordingData,
         updateRecorderStatus: updateStatus,
         setPlayerTranscript,
         setNpcTranscript: (transcript: string | null) =>
-          setNpcTranscript(transcript ?? ""),
+          setNpcTranscript(transcript),
         addChatMessage,
         clearChatMessages,
+        setSelectedTargetLanguage,
+        setSelectedSpeaker,
       }}
     >
       {children}

@@ -1,10 +1,17 @@
 import React from "react";
 import { ChatWindowRecorder } from "./Recorderv2";
 import { useRecorderContext } from "../context/RecorderContext";
+import { TARGET_LANGUAGES, SPEAKERS } from "../constants";
 import styles from "./ChatWindow.module.css";
 
 export const ChatWindow: React.FC = () => {
-  const { chatMessages } = useRecorderContext();
+  const {
+    chatMessages,
+    selectedTargetLanguage,
+    setSelectedTargetLanguage,
+    selectedSpeaker,
+    setSelectedSpeaker
+  } = useRecorderContext();
 
   return (
     <div className={styles.chatContainer}>
@@ -33,6 +40,40 @@ export const ChatWindow: React.FC = () => {
             </div>
           );
         })}
+      </div>
+
+      {/* Selection Controls Area */}
+      <div className={styles.selectionsBar}>
+        <div className={styles.selectionsContainer}>
+          <div className={styles.selectionGroup}>
+            <label htmlFor="chatTargetLanguage">Language:</label>
+            <select
+              id="chatTargetLanguage"
+              value={selectedTargetLanguage}
+              onChange={(e) => setSelectedTargetLanguage(e.target.value)}
+            >
+              {TARGET_LANGUAGES.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.selectionGroup}>
+            <label htmlFor="chatSpeaker">Speaker:</label>
+            <select
+              id="chatSpeaker"
+              value={selectedSpeaker}
+              onChange={(e) => setSelectedSpeaker(e.target.value)}
+            >
+              {SPEAKERS.map((speaker) => (
+                <option key={speaker} value={speaker}>
+                  {speaker}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Sticky Action/Recorder Section */}

@@ -1,23 +1,24 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import { Recorder } from "./components/Recorder";
 import { AudioProvider, useRecorderContext } from "./context/RecorderContext";
-import { getAudioTranscript, getNLPResponse, getTextToSpeech } from "./service/sarvamService";
+import {
+  getAudioTranscript,
+  getNLPResponse,
+  getTextToSpeech,
+} from "./service/sarvamService";
 import { TranscriptSection } from "./components/TranscriptSection";
 import { ChatWindow } from "./components/ChatWindow";
+import { LanguageSpeakerSelector } from "./components/LanguageSpeakerSelector";
 
 function AppContent() {
   const [showChat, setShowChat] = React.useState(true);
   const {
-    playerAudioURL,
     playerAudioBlob,
-    recorderStatus,
-    setRecordingData,
-    updateRecorderStatus,
-    playerTranscript,
     setPlayerTranscript,
-    setNpcTranscript
+    setNpcTranscript,
+    selectedTargetLanguage,
+    selectedSpeaker,
   } = useRecorderContext();
   const handleClick = async () => {
     if (!playerAudioBlob) {
@@ -26,7 +27,7 @@ function AppContent() {
     }
     const transcript = await getAudioTranscript(playerAudioBlob);
     const nlpResponse = await getNLPResponse(transcript);
-    await getTextToSpeech(nlpResponse);
+    await getTextToSpeech(nlpResponse, selectedTargetLanguage, selectedSpeaker);
     setPlayerTranscript(transcript);
     setNpcTranscript(nlpResponse);
   };
@@ -51,6 +52,10 @@ function AppContent() {
         <>
           <div className="InputSection">
             <Recorder />
+            <LanguageSpeakerSelector
+              containerClassName="SelectionsContainer"
+              groupClassName="SelectionGroup"
+            />
             <button onClick={handleClick}>Transcribe</button>
           </div>
           <div className="TranscriptSection">
