@@ -1,0 +1,181 @@
+.inputContainer {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 8px 12px;
+  min-height: 40px;
+  gap: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e9edef;
+}
+
+/* Stand-in placeholder style when not recording */
+.textInputPlaceholder {
+  flex: 1;
+  color: #8696a0;
+  font-size: 14px;
+  padding-left: 8px;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Live Recording Dashboard layout */
+.liveRecordingArea {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ea0038;
+}
+
+/* Pulsing Red Dot Animation */
+.pulse {
+  animation: audioPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes audioPulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.timer {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111b21;
+}
+
+.statusText {
+  font-size: 12px;
+  color: #8696a0;
+}
+
+/* Embedded Audio playback item layout */
+.playbackWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.compactAudio {
+  width: 100%;
+  height: 32px;
+}
+
+/* Action button grouping layout rules */
+.buttonActionGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Text-based Action Buttons */
+.actionBtn {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
+  white-space: nowrap;
+  min-height: 36px;
+}
+
+.actionBtn:active {
+  transform: scale(0.96);
+}
+
+.btnMic {
+  background-color: #008069;
+  color: white;
+}
+
+.btnMic:hover {
+  background-color: #006e5a;
+  opacity: 0.9;
+}
+
+.btnStop {
+  background-color: #25d366;
+  color: white;
+}
+
+.btnStop:hover {
+  background-color: #1da851;
+  opacity: 0.9;
+}
+
+.btnSecondary {
+  background-color: #e9edef;
+  color: #054740;
+  font-weight: 600;
+}
+
+.btnSecondary:hover {
+  background-color: #d4d8db;
+}
+
+.btnDanger {
+  background-color: #fdd9de;
+  color: #c41e3a;
+  font-weight: 600;
+}
+
+.btnDanger:hover {
+  background-color: #f8b8c5;
+}
+
+/* Submit Section */
+.submitSection {
+  width: 100%;
+  padding: 8px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #25d366;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #1da851;
+  opacity: 0.9;
+}
+
+.submitBtn:disabled {
+  background-color: #b3d9c4;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.submitBtn.submitting {
+  background-color: #b3d9c4;
+}

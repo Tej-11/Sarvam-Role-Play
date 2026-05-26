@@ -1,8 +1,11 @@
 .App {
-  background-color: #282c34;
+  width: 100vw;
+  height: 100vh;
   min-height: 100vh;
   display: flex;
   flex-direction: row;
+  margin: 0;
+  padding: 0;
 }
 .InputSection {
   flex: 1;
@@ -67,4 +70,71 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+}
+
+.toggle-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #007aff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-button:hover {
+  transform: translateY(-2px);
+}
+
+.toggle-button:active {
+  transform: scale(0.96);
+}
+
+.toggle-label {
+  min-width: 65px;
+  text-align: right;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: rgba(0, 122, 255, 0.2);
+  border-radius: 13px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 122, 255, 0.3);
+}
+
+.toggle-button.active .toggle-switch {
+  background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+  border-color: #0051d5;
+  box-shadow: 0 0 8px rgba(0, 122, 255, 0.4);
+}
+
+.toggle-circle {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-button.active .toggle-circle {
+  transform: translateX(22px);
 }

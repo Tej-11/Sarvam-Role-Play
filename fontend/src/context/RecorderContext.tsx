@@ -6,6 +6,11 @@ interface ChatMessage {
   content: string;
 }
 
+interface StoredChatMessage extends ChatMessage {
+  id: string;
+  time: string;
+}
+
 interface RecorderContextType {
   playerAudioURL: string | null;
   playerAudioBlob: globalThis.Blob | null;
@@ -14,10 +19,14 @@ interface RecorderContextType {
 
   npcTranscript: string | null;
 
+  chatMessages: StoredChatMessage[];
+
   setRecordingData: (url: string | null, blob: globalThis.Blob | null) => void;
   updateRecorderStatus: (status: RecorderStatus) => void;
   setPlayerTranscript: (transcript: string | null) => void;
   setNpcTranscript: (transcript: string | null) => void;
+  addChatMessage: (message: ChatMessage) => void;
+  clearChatMessages: () => void;
 }
 
 const RecorderContext = createContext<RecorderContextType | undefined>(
@@ -34,6 +43,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
     useState<RecorderStatus>("inactive");
   const [playerTranscript, setPlayerTranscript] = useState<string | null>(null);
   const [npcTranscript, setNpcTranscript] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<StoredChatMessage[]>([]);
 
   const setRecordingData = (
     url: string | null,
@@ -47,6 +57,22 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
     setRecorderStatus(newStatus);
   };
 
+  const addChatMessage = (message: ChatMessage) => {
+    const storedMessage: StoredChatMessage = {
+      ...message,
+      id: `${Date.now()}-${Math.random()}`,
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+    setChatMessages((prev) => [...prev, storedMessage]);
+  };
+
+  const clearChatMessages = () => {
+    setChatMessages([]);
+  };
+
   return (
     <RecorderContext.Provider
       value={{
@@ -55,11 +81,14 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
         recorderStatus,
         playerTranscript,
         npcTranscript,
+        chatMessages,
         setRecordingData,
         updateRecorderStatus: updateStatus,
         setPlayerTranscript,
         setNpcTranscript: (transcript: string | null) =>
           setNpcTranscript(transcript ?? ""),
+        addChatMessage,
+        clearChatMessages,
       }}
     >
       {children}
