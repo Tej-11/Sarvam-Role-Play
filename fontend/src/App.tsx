@@ -3,7 +3,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import { Recorder } from "./components/Recorder";
 import { AudioProvider, useRecorderContext } from "./context/RecorderContext";
-import { getAudioTranscript, getNLPResponse } from "./service/sarvamService";
+import { getAudioTranscript, getNLPResponse, getTextToSpeech } from "./service/sarvamService";
 import { TranscriptSection } from "./components/TranscriptSection";
 
 function AppContent() {
@@ -24,6 +24,7 @@ function AppContent() {
     }
     const transcript = await getAudioTranscript(playerAudioBlob);
     const nlpResponse = await getNLPResponse(transcript);
+    await getTextToSpeech(nlpResponse);
     setPlayerTranscript(transcript);
     setNpcTranscript(nlpResponse);
   };
