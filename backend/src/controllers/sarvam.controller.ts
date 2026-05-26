@@ -2,7 +2,7 @@
 
 import type { Request, Response, NextFunction } from 'express';
 import { sarvamClient } from '../config/sarvam.config.js';
-import { analyzeTextService, transcribeAudioService } from '../services/sarvam.services.js';
+import { analyzeTextService, textToSpeechService, transcribeAudioService } from '../services/sarvam.services.js';
 
 
 export const transcribeAudioController = async (req: Request, res: Response, next: NextFunction) => {
@@ -34,3 +34,22 @@ export const analyzeTextController = async (req: Request, res: Response, next: N
         next(error);
     }
 }
+
+export const textToSpeechController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const text = req.body.text;
+        const targetLanguage = req.body.targetLanguage || 'en-IN';
+        const speaker = req.body.speaker || 'shubh';
+        if (!text) {
+            return res.status(400).json({ error: 'No text provided' });
+        }
+        const audioBuffer = await textToSpeechService(text, targetLanguage, speaker);
+        res.writeHead(200, {
+            'Content-Type': 'audio/mpeg',
+            'content-length': audioBuffer.length,
+        });
+        return res.end(audioBuffer);
+    } catch (error) {
+        next(error);
+    }
+};

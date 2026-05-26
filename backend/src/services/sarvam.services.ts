@@ -1,4 +1,7 @@
+import { SarvamAI } from "sarvamai";
 import { sarvamClient } from "../config/sarvam.config.js";
+import { getTextToSpeechLanguageCode, getTextToSpeechSpeakerCode } from "../utils/sarvamAi.utils.js";
+
 // All the business logic related to Sarvam API can be implemented here. This keeps the controller clean and focused on handling HTTP requests and responses.
 export const transcribeAudioService = async (audioBuffer: Buffer, originalName: string, mimeType: string): Promise<{ transcript: string }> => {
     try {
@@ -33,11 +36,34 @@ export const analyzeTextService = async (playerResponse: string): Promise<{ nlpR
             ]
         });
         return { nlpResponse: response.choices[0]?.message.content ?? "" };
-    } catch (error: any ) {
-            if(error instanceof Error) {
-                throw new Error(`Error analyzing text: ${error.message}`);
-            } else {
-                throw new Error(`Error analyzing text: ${String(error)}`);
-            }
+    } catch (error: any) {
+        if (error instanceof Error) {
+            throw new Error(`Error analyzing text: ${error.message}`);
+        } else {
+            throw new Error(`Error analyzing text: ${String(error)}`);
+        }
+    }
+}
+
+
+export const textToSpeechService = async (text: string, targetLanguage: string, speaker: string): Promise<Buffer> => {
+    try {
+        const languageCode = getTextToSpeechLanguageCode(targetLanguage);
+        const speakerCode = getTextToSpeechSpeakerCode(speaker);
+        const response = await sarvamClient.textToSpeech.convert({
+            text: text,
+            model: "bulbul:v3",
+            target_language_code: languageCode,
+            speaker: speakerCode
+        });
+        const base64Audio = response.audios[0] ?? '';
+        const audioBuffer = Buffer.from(base64Audio, 'base64');
+        return audioBuffer;
+    } catch (error: any) {
+        if (error instanceof Error) {
+            throw new Error(`Error converting text to speech: ${error.message}`);
+        } else {
+            throw new Error(`Error converting text to speech: ${String(error)}`);
+        }
     }
 }
