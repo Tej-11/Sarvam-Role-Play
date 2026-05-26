@@ -4,8 +4,7 @@ import { TranscriptPane } from "./TranscriptPane";
 import { useRecorderContext } from "../context/RecorderContext";
 
 export const TranscriptSection: React.FC = () => {
-    const { playerTranscript } = useRecorderContext();
-    const npcTranscript = "NPC: Welcome to the world of role-playing! How can I assist you today?";
+    const { playerTranscript, npcTranscript } = useRecorderContext();
     return (
         <div className={styles.transcriptSectionContainer}>
             <TranscriptPane
@@ -16,7 +15,7 @@ export const TranscriptSection: React.FC = () => {
             />
             <TranscriptPane
                 title="NPC Transcript"
-                transcript={npcTranscript}
+                transcript={npcTranscript ?? ""}
                 placeholder="No transcript available"
                 variant="actor"
             />

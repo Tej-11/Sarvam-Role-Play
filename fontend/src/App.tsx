@@ -3,7 +3,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import { Recorder } from "./components/Recorder";
 import { AudioProvider, useRecorderContext } from "./context/RecorderContext";
-import { getAudioTranscript } from "./service/sarvamService";
+import { getAudioTranscript, getNLPResponse } from "./service/sarvamService";
 import { TranscriptSection } from "./components/TranscriptSection";
 
 function AppContent() {
@@ -14,22 +14,25 @@ function AppContent() {
     setRecordingData,
     updateRecorderStatus,
     playerTranscript,
-    setPlayerTranscript
+    setPlayerTranscript,
+    setNpcTranscript
   } = useRecorderContext();
-  const handleTranscribe = async () => {
+  const handleClick = async () => {
     if (!playerAudioBlob) {
       alert("Please record audio before transcribing.");
       return;
     }
     const transcript = await getAudioTranscript(playerAudioBlob);
+    const nlpResponse = await getNLPResponse(transcript);
     setPlayerTranscript(transcript);
+    setNpcTranscript(nlpResponse);
   };
 
   return (
     <div className="App">
       <div className="InputSection">
         <Recorder />
-        <button onClick={handleTranscribe}>Transcribe</button>
+        <button onClick={handleClick}>Transcribe</button>
       </div>
       <div className="TranscriptSection">
         <TranscriptSection />
