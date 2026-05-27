@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AudioRecorder, RecorderStatus } from "../utils/AudioRecorder";
 import { useRecorderContext } from "../context/RecorderContext";
-import { getAudioTranscript, getNLPResponse, getTextToSpeech } from "../service/sarvamService";
 import styles from "./Recorderv2.module.css";
 
 export const ChatWindowRecorder = () => {
@@ -10,7 +9,7 @@ export const ChatWindowRecorder = () => {
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, setPlayerTranscript, setNpcTranscript, addChatMessage, selectedTargetLanguage, selectedSpeaker } = useRecorderContext();
+  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingSubmit } = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
@@ -99,21 +98,7 @@ export const ChatWindowRecorder = () => {
 
     setIsSubmitting(true);
     try {
-      const transcript = await getAudioTranscript(playerAudioBlob);
-      const nlpResponse = await getNLPResponse(transcript);
-      await getTextToSpeech(nlpResponse, selectedTargetLanguage, selectedSpeaker);
-      setPlayerTranscript(transcript);
-      setNpcTranscript(nlpResponse);
-
-      // Add messages to chat
-      addChatMessage({ sender: "player", content: transcript });
-      addChatMessage({ sender: "npc", content: nlpResponse });
-
-      // Clear the recording after successful submission
-      if (playerAudioURL) {
-        URL.revokeObjectURL(playerAudioURL);
-        setRecordingData(null, null);
-      }
+      await handleRecordingSubmit(playerAudioBlob, playerAudioURL);
     } catch (error) {
       console.error("Error submitting recording:", error);
       alert("Failed to submit recording. Please try again.");

@@ -2,34 +2,32 @@ import React from "react";
 import "./App.css";
 import { Recorder } from "./components/Recorder";
 import { AudioProvider, useRecorderContext } from "./context/RecorderContext";
-import {
-  getAudioTranscript,
-  getNLPResponse,
-  getTextToSpeech,
-} from "./service/sarvamService";
 import { TranscriptSection } from "./components/TranscriptSection";
 import { ChatWindow } from "./components/ChatWindow";
 import { LanguageSpeakerSelector } from "./components/LanguageSpeakerSelector";
 
 function AppContent() {
   const [showChat, setShowChat] = React.useState(true);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const {
     playerAudioBlob,
-    setPlayerTranscript,
-    setNpcTranscript,
-    selectedTargetLanguage,
-    selectedSpeaker,
+    playerAudioURL,
+    handleRecordingSubmit,
   } = useRecorderContext();
+
   const handleClick = async () => {
     if (!playerAudioBlob) {
       alert("Please record audio before transcribing.");
       return;
     }
-    const transcript = await getAudioTranscript(playerAudioBlob);
-    const nlpResponse = await getNLPResponse(transcript);
-    await getTextToSpeech(nlpResponse, selectedTargetLanguage, selectedSpeaker);
-    setPlayerTranscript(transcript);
-    setNpcTranscript(nlpResponse);
+    setIsSubmitting(true);
+    try {
+      await handleRecordingSubmit(playerAudioBlob, playerAudioURL);
+    } catch (error) {
+      alert("Failed to submit recording. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -56,7 +54,9 @@ function AppContent() {
               containerClassName="SelectionsContainer"
               groupClassName="SelectionGroup"
             />
-            <button onClick={handleClick}>Transcribe</button>
+            <button onClick={handleClick} disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : "Submit Recording"}
+            </button>
           </div>
           <div className="TranscriptSection">
             <TranscriptSection />

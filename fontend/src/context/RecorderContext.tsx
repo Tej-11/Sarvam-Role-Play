@@ -1,5 +1,7 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 import { RecorderStatus } from "../utils/AudioRecorder";
+import { getAudioTranscript } from "../service/sarvamService";
+import { getOpenAIResponse } from "../service/openaiService";
 
 interface ChatMessage {
   sender: "player" | "npc";
@@ -32,6 +34,7 @@ interface RecorderContextType {
   clearChatMessages: () => void;
   setSelectedTargetLanguage: (language: string) => void;
   setSelectedSpeaker: (speaker: string) => void;
+  handleRecordingSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
 }
 
 const RecorderContext = createContext<RecorderContextType | undefined>(
@@ -80,6 +83,29 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
     setChatMessages([]);
   };
 
+  const handleRecordingSubmit = async (audioBlob: globalThis.Blob, playerAudioURL: string | null) => {
+    try {
+      const transcript = await getAudioTranscript(audioBlob);
+
+      setPlayerTranscript(transcript);
+      addChatMessage({ sender: "player", content: transcript });
+      if (playerAudioURL) {
+        URL.revokeObjectURL(playerAudioURL);
+      }
+      setRecordingData(null, null);
+
+      let fullResponse = "";
+      for await (const chunk of getOpenAIResponse(transcript)) {
+        fullResponse += chunk;
+        setNpcTranscript(fullResponse);
+      }
+      addChatMessage({ sender: "npc", content: fullResponse });
+    } catch (error) {
+      console.error("Error submitting recording:", error);
+      throw error;
+    }
+  };
+
   return (
     <RecorderContext.Provider
       value={{
@@ -100,6 +126,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
         clearChatMessages,
         setSelectedTargetLanguage,
         setSelectedSpeaker,
+        handleRecordingSubmit,
       }}
     >
       {children}
