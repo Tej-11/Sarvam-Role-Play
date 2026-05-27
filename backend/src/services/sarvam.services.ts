@@ -67,3 +67,39 @@ export const textToSpeechService = async (text: string, targetLanguage: string, 
         }
     }
 }
+
+export const textToSpeechStreamingService = async function* (text: string, targetLanguage: string, speaker: string): AsyncGenerator<Buffer> {
+    try {
+        const languageCode = getTextToSpeechLanguageCode(targetLanguage);
+        const speakerCode = getTextToSpeechSpeakerCode(speaker);
+        const response = await sarvamClient.textToSpeech.convertStream({
+            text: text,
+            model: "bulbul:v3",
+            target_language_code: languageCode,
+            speaker: speakerCode,
+            output_audio_codec: "mp3"
+        });
+
+        // Handle the BinaryResponse - extract the actual stream data
+        const streamData = (response as any).data || response;
+
+        if (streamData && typeof streamData[Symbol.asyncIterator] === 'function') {
+            for await (const chunk of streamData) {
+                yield Buffer.from(chunk);
+            }
+        } else if (streamData && typeof (streamData as any).stream === 'function') {
+            for await (const chunk of (streamData as any).stream()) {
+                yield Buffer.from(chunk);
+            }
+        } else {
+            throw new Error('Unable to read stream from response');
+        }
+    } catch (error: any) {
+        if (error instanceof Error) {
+            throw new Error(`Error converting text to speech: ${error.message}`);
+        } else {
+            throw new Error(`Error converting text to speech: ${String(error)}`);
+        }
+
+    }
+}
