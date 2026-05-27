@@ -10,4 +10,5 @@ export const ENV = {
     PORT: process.env.PORT || 4000,
     SARVAM_API_KEY: process.env.SARVAM_API_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000',
 }

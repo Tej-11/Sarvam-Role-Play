@@ -5,12 +5,13 @@ import { errorHandlerMiddleware } from './middlewares/error.middleware.js';
 import { METHODS } from 'node:http';
 import type { CorsOptions } from 'cors';
 import cors from 'cors';
+import { ENV } from './config/env.config.js';
 
 
 export const app = express();
 
 const corsOptions: CorsOptions = {
-    origin: 'http://localhost:3000',
+    origin: ENV.CORS_ORIGIN, // Allow requests from this origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'], // Add other headers as needed
     credentials: false, // Set to true if you want to allow/pass cookies or tokens
