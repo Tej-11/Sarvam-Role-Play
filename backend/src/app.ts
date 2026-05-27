@@ -8,7 +8,7 @@ import cors from 'cors';
 import { ENV } from './config/env.config.js';
 
 
-export const app = express();
+const app = express();
 
 const corsOptions: CorsOptions = {
     origin: ENV.CORS_ORIGIN, // Allow requests from this origin
@@ -21,3 +21,5 @@ app.use(cors(corsOptions))
 app.use(express.json());
 app.use('/api/v1' , rootRouter);
 app.use(errorHandlerMiddleware);
+
+export default app;
