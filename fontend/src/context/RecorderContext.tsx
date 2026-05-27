@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 import { RecorderStatus } from "../utils/AudioRecorder";
-import { getAudioTranscript } from "../service/sarvamService";
+import { getAudioTranscript, getTextToSpeechStream } from "../service/sarvamService";
 import { getOpenAIResponse } from "../service/openaiService";
 
 interface ChatMessage {
@@ -98,7 +98,11 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
       for await (const chunk of getOpenAIResponse(transcript)) {
         fullResponse += chunk;
         setNpcTranscript(fullResponse);
+        const trimmedChunk = chunk.trim();
+        // if (trimmedChunk && /[a-zA-Zऀ-ॿ]/.test(trimmedChunk)) {
+        // }
       }
+      await getTextToSpeechStream(fullResponse, selectedTargetLanguage, selectedSpeaker);
       addChatMessage({ sender: "npc", content: fullResponse });
     } catch (error) {
       console.error("Error submitting recording:", error);

@@ -57,17 +57,38 @@ export const streamingApiClient = async function* <T>(
             throw new Error("Response body is not readable");
         }
 
+        let buffer = '';
+
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n');
+            buffer += decoder.decode(value, { stream: true });
+            const messages = buffer.split('\n\n');
 
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = JSON.parse(line.slice(6)) as T;
+            for (let i = 0; i < messages.length - 1; i++) {
+                const message = messages[i].trim();
+                if (message.startsWith('data: ')) {
+                    try {
+                        const data = JSON.parse(message.slice(6)) as T;
+                        yield data;
+                    } catch (parseError) {
+                        console.error('Failed to parse SSE message:', message, parseError);
+                    }
+                }
+            }
+
+            buffer = messages[messages.length - 1];
+        }
+
+        if (buffer.trim()) {
+            const message = buffer.trim();
+            if (message.startsWith('data: ')) {
+                try {
+                    const data = JSON.parse(message.slice(6)) as T;
                     yield data;
+                } catch (parseError) {
+                    console.error('Failed to parse final SSE message:', message, parseError);
                 }
             }
         }
