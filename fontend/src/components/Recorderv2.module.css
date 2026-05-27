@@ -149,11 +149,12 @@
   width: 100%;
   padding: 8px 0;
   display: flex;
+  gap: 8px;
   justify-content: center;
 }
 
 .submitBtn {
-  width: 100%;
+  flex: 1;
   padding: 10px 16px;
   background-color: #25d366;
   color: white;
@@ -178,4 +179,13 @@
 
 .submitBtn.submitting {
   background-color: #b3d9c4;
+}
+
+.submitBtn.streamBtn {
+  background-color: #007aff;
+}
+
+.submitBtn.streamBtn:hover:not(:disabled) {
+  background-color: #0051d5;
+  opacity: 0.9;
 }

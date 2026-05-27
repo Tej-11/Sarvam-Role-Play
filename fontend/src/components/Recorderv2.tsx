@@ -9,7 +9,7 @@ export const ChatWindowRecorder = () => {
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingSubmit } = useRecorderContext();
+  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingSubmit, handleNormalSubmit } = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
@@ -90,7 +90,24 @@ export const ChatWindowRecorder = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleNormalClick = async () => {
+    if (!playerAudioBlob) {
+      alert("Please record audio before submitting.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await handleNormalSubmit(playerAudioBlob, playerAudioURL);
+    } catch (error) {
+      console.error("Error submitting recording:", error);
+      alert("Failed to submit recording. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleStreamClick = async () => {
     if (!playerAudioBlob) {
       alert("Please record audio before submitting.");
       return;
@@ -189,15 +206,22 @@ export const ChatWindowRecorder = () => {
         </div>
       </div>
 
-      {/* SUBMIT BUTTON: Appears after recording is complete */}
+      {/* SUBMIT BUTTONS: Appears after recording is complete */}
       {recorderStatus === "inactive" && playerAudioURL && (
         <div className={styles.submitSection}>
           <button
-            onClick={handleSubmit}
+            onClick={handleNormalClick}
             disabled={isSubmitting}
             className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ""}`}
           >
-            {isSubmitting ? "Submitting..." : "Submit Recording"}
+            {isSubmitting ? "Submitting..." : "Normal Submit"}
+          </button>
+          <button
+            onClick={handleStreamClick}
+            disabled={isSubmitting}
+            className={`${styles.submitBtn} ${styles.streamBtn} ${isSubmitting ? styles.submitting : ""}`}
+          >
+            {isSubmitting ? "Submitting..." : "Stream Submit"}
           </button>
         </div>
       )}

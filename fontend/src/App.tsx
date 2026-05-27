@@ -13,9 +13,25 @@ function AppContent() {
     playerAudioBlob,
     playerAudioURL,
     handleRecordingSubmit,
+    handleNormalSubmit,
   } = useRecorderContext();
 
-  const handleClick = async () => {
+  const handleNormalClick = async () => {
+    if (!playerAudioBlob) {
+      alert("Please record audio before transcribing.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await handleNormalSubmit(playerAudioBlob, playerAudioURL);
+    } catch (error) {
+      alert("Failed to submit recording. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleStreamClick = async () => {
     if (!playerAudioBlob) {
       alert("Please record audio before transcribing.");
       return;
@@ -54,9 +70,14 @@ function AppContent() {
               containerClassName="SelectionsContainer"
               groupClassName="SelectionGroup"
             />
-            <button onClick={handleClick} disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit Recording"}
-            </button>
+            <div className="button-group">
+              <button onClick={handleNormalClick} disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Normal Submit"}
+              </button>
+              <button onClick={handleStreamClick} disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Stream Submit"}
+              </button>
+            </div>
           </div>
           <div className="TranscriptSection">
             <TranscriptSection />
