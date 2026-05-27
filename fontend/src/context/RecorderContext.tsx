@@ -99,7 +99,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
       for await (const chunk of getOpenAIResponse(transcript)) {
         fullResponse += chunk;
         setNpcTranscript(fullResponse);
-        const trimmedChunk = chunk.trim();
+        // const trimmedChunk = chunk.trim();
         // if (trimmedChunk && /[a-zA-Zऀ-ॿ]/.test(trimmedChunk)) {
         // }
       }

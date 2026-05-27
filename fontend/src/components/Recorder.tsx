@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AudioRecorder, RecorderStatus } from "../utils/AudioRecorder";
+import { AudioRecorder } from "../utils/AudioRecorder";
 import { useRecorderContext } from "../context/RecorderContext";
 import styles from "./Recorder.module.css";
 
@@ -8,7 +8,7 @@ export const Recorder = () => {
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
 
-  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus} = useRecorderContext();
+  const { playerAudioURL, recorderStatus, setRecordingData, updateRecorderStatus} = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
@@ -21,7 +21,7 @@ export const Recorder = () => {
     return () => {
       if (playerAudioURL) URL.revokeObjectURL(playerAudioURL);
     };
-  }, []);
+  }, [playerAudioURL]);
 
   const handleStartRecording = async () => {
     const recorder = audioRecorderRef.current;

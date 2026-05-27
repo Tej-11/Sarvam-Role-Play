@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AudioRecorder, RecorderStatus } from "../utils/AudioRecorder";
+import { AudioRecorder } from "../utils/AudioRecorder";
 import { useRecorderContext } from "../context/RecorderContext";
 import styles from "./Recorderv2.module.css";
 
@@ -22,7 +22,7 @@ export const ChatWindowRecorder = () => {
     return () => {
       if (playerAudioURL) URL.revokeObjectURL(playerAudioURL);
     };
-  }, []);
+  }, [playerAudioURL]);
 
   const handleStartRecording = async () => {
     const recorder = audioRecorderRef.current;
