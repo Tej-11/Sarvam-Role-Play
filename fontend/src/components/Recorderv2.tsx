@@ -10,7 +10,7 @@ export const ChatWindowRecorder = () => {
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, setPlayerTranscript, setNpcTranscript, addChatMessage } = useRecorderContext();
+  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, setPlayerTranscript, setNpcTranscript, addChatMessage, selectedTargetLanguage, selectedSpeaker } = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
@@ -101,7 +101,7 @@ export const ChatWindowRecorder = () => {
     try {
       const transcript = await getAudioTranscript(playerAudioBlob);
       const nlpResponse = await getNLPResponse(transcript);
-      await getTextToSpeech(nlpResponse);
+      await getTextToSpeech(nlpResponse, selectedTargetLanguage, selectedSpeaker);
       setPlayerTranscript(transcript);
       setNpcTranscript(nlpResponse);
 
