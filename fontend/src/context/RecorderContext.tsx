@@ -2,7 +2,10 @@ import { createContext, ReactNode, useContext, useState } from "react";
 import { RecorderStatus } from "../utils/AudioRecorder";
 import { getAudioTranscript, getTextToSpeech, getTextToSpeechStream } from "../service/sarvamService";
 import { getOpenAIResponse } from "../service/openaiService";
+import { isValidChunk } from "../utils/isValidChunk";
+import { get } from "http";
 
+export  type SubmitType = "normal" | "stream" | "delayedStream";
 interface ChatMessage {
   sender: "player" | "npc";
   content: string;
@@ -35,6 +38,7 @@ interface RecorderContextType {
   setSelectedTargetLanguage: (language: string) => void;
   setSelectedSpeaker: (speaker: string) => void;
   handleRecordingStreamSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
+  handleRecordingDelayedStreamSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
   handleNormalSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
 }
 
@@ -111,6 +115,36 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  const handleRecordingDelayedStreamSubmit = async (audioBlob: globalThis.Blob, playerAudioURL: string | null) => {
+    try {
+      const transcript = await getAudioTranscript(audioBlob);
+
+      setPlayerTranscript(transcript);
+      addChatMessage({ sender: "player", content: transcript });
+      if (playerAudioURL) {
+        URL.revokeObjectURL(playerAudioURL);
+      }
+      setRecordingData(null, null);
+
+      let fullResponse = "";
+      let validChunk = "";
+      let hasReceivedValidChunk = false;
+      for await (const chunk of getOpenAIResponse(transcript)) {
+        validChunk = validChunk + chunk;
+        hasReceivedValidChunk = isValidChunk(validChunk);
+        if(hasReceivedValidChunk){
+          fullResponse += validChunk;
+          setNpcTranscript(fullResponse);
+          await getTextToSpeechStream(validChunk, selectedTargetLanguage, selectedSpeaker);
+          validChunk = "";
+        }
+      }
+    } catch (error) {
+      console.error("Error submitting recording:", error);
+      throw error;
+    }
+  };
+
   const handleNormalSubmit = async (audioBlob: globalThis.Blob, playerAudioURL: string | null) => {
     try {
       const transcript = await getAudioTranscript(audioBlob);
@@ -156,6 +190,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
         setSelectedTargetLanguage,
         setSelectedSpeaker,
         handleRecordingStreamSubmit,
+        handleRecordingDelayedStreamSubmit,
         handleNormalSubmit,
       }}
     >

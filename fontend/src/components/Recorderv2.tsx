@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AudioRecorder } from "../utils/AudioRecorder";
 import { useRecorderContext } from "../context/RecorderContext";
 import styles from "./Recorderv2.module.css";
+import { SubmitType } from "../context/RecorderContext";
 
 export const ChatWindowRecorder = () => {
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
@@ -9,7 +10,7 @@ export const ChatWindowRecorder = () => {
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingStreamSubmit, handleNormalSubmit } = useRecorderContext();
+  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingStreamSubmit, handleRecordingDelayedStreamSubmit, handleNormalSubmit } = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
@@ -90,34 +91,22 @@ export const ChatWindowRecorder = () => {
     }
   };
 
-  const handleNormalClick = async () => {
+
+    const handleSubmitClick = async (SubmitType: SubmitType) => {
     if (!playerAudioBlob) {
-      alert("Please record audio before submitting.");
+      alert("Please record audio before transcribing.");
       return;
     }
-
     setIsSubmitting(true);
     try {
-      await handleNormalSubmit(playerAudioBlob, playerAudioURL);
+      if (SubmitType === "normal") {
+        await handleNormalSubmit(playerAudioBlob, playerAudioURL);
+      } else if (SubmitType === "stream") {
+        await handleRecordingStreamSubmit(playerAudioBlob, playerAudioURL);
+      } else if (SubmitType === "delayedStream") {
+        await handleRecordingDelayedStreamSubmit(playerAudioBlob, playerAudioURL);
+      }
     } catch (error) {
-      console.error("Error submitting recording:", error);
-      alert("Failed to submit recording. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleStreamClick = async () => {
-    if (!playerAudioBlob) {
-      alert("Please record audio before submitting.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await handleRecordingStreamSubmit(playerAudioBlob, playerAudioURL);
-    } catch (error) {
-      console.error("Error submitting recording:", error);
       alert("Failed to submit recording. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -210,18 +199,25 @@ export const ChatWindowRecorder = () => {
       {recorderStatus === "inactive" && playerAudioURL && (
         <div className={styles.submitSection}>
           <button
-            onClick={handleNormalClick}
+            onClick={() => handleSubmitClick("normal")}
             disabled={isSubmitting}
             className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ""}`}
           >
             {isSubmitting ? "Submitting..." : "Normal Submit"}
           </button>
           <button
-            onClick={handleStreamClick}
+            onClick={() => handleSubmitClick("stream")}
             disabled={isSubmitting}
             className={`${styles.submitBtn} ${styles.streamBtn} ${isSubmitting ? styles.submitting : ""}`}
           >
             {isSubmitting ? "Submitting..." : "Stream Submit"}
+          </button>
+          <button
+            onClick={() => handleSubmitClick("delayedStream")}
+            disabled={isSubmitting}
+            className={`${styles.submitBtn} ${styles.delayedStreamBtn} ${isSubmitting ? styles.submitting : ""}`}
+          >
+            {isSubmitting ? "Submitting..." : "Delayed Stream Submit"}
           </button>
         </div>
       )}

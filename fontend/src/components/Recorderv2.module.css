@@ -189,3 +189,12 @@
   background-color: #0051d5;
   opacity: 0.9;
 }
+
+.submitBtn.delayedStreamBtn {
+  background-color: #ff9500;
+}
+
+.submitBtn.delayedStreamBtn:hover:not(:disabled) {
+  background-color: #cc7700;
+  opacity: 0.9;
+}
