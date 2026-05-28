@@ -12,7 +12,7 @@ function AppContent() {
   const {
     playerAudioBlob,
     playerAudioURL,
-    handleRecordingSubmit,
+    handleRecordingStreamSubmit,
     handleNormalSubmit,
   } = useRecorderContext();
 
@@ -38,7 +38,7 @@ function AppContent() {
     }
     setIsSubmitting(true);
     try {
-      await handleRecordingSubmit(playerAudioBlob, playerAudioURL);
+      await handleRecordingStreamSubmit(playerAudioBlob, playerAudioURL);
     } catch (error) {
       alert("Failed to submit recording. Please try again.");
     } finally {

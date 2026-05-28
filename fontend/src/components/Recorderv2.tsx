@@ -9,7 +9,7 @@ export const ChatWindowRecorder = () => {
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingSubmit, handleNormalSubmit } = useRecorderContext();
+  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingStreamSubmit, handleNormalSubmit } = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
@@ -115,7 +115,7 @@ export const ChatWindowRecorder = () => {
 
     setIsSubmitting(true);
     try {
-      await handleRecordingSubmit(playerAudioBlob, playerAudioURL);
+      await handleRecordingStreamSubmit(playerAudioBlob, playerAudioURL);
     } catch (error) {
       console.error("Error submitting recording:", error);
       alert("Failed to submit recording. Please try again.");

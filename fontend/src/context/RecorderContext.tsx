@@ -34,7 +34,7 @@ interface RecorderContextType {
   clearChatMessages: () => void;
   setSelectedTargetLanguage: (language: string) => void;
   setSelectedSpeaker: (speaker: string) => void;
-  handleRecordingSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
+  handleRecordingStreamSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
   handleNormalSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
 }
 
@@ -84,7 +84,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
     setChatMessages([]);
   };
 
-  const handleRecordingSubmit = async (audioBlob: globalThis.Blob, playerAudioURL: string | null) => {
+  const handleRecordingStreamSubmit = async (audioBlob: globalThis.Blob, playerAudioURL: string | null) => {
     try {
       const transcript = await getAudioTranscript(audioBlob);
 
@@ -155,7 +155,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
         clearChatMessages,
         setSelectedTargetLanguage,
         setSelectedSpeaker,
-        handleRecordingSubmit,
+        handleRecordingStreamSubmit,
         handleNormalSubmit,
       }}
     >
