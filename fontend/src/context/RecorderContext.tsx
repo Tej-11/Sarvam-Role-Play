@@ -1,11 +1,19 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 import { RecorderStatus } from "../utils/AudioRecorder";
-import { getAudioTranscript, getTextToSpeech, getTextToSpeechStream } from "../service/sarvamService";
+import {
+  getAudioTranscript,
+  getTextToSpeech,
+  getTextToSpeechStream,
+} from "../service/sarvamService";
 import { getOpenAIResponse } from "../service/openaiService";
 import { isValidChunk } from "../utils/isValidChunk";
 import { get } from "http";
 
-export  type SubmitType = "normal" | "stream" | "delayedStream";
+export type SubmitType =
+  | "normal"
+  | "chunkedNormal"
+  | "stream"
+  | "delayedStream";
 interface ChatMessage {
   sender: "player" | "npc";
   content: string;
@@ -37,9 +45,22 @@ interface RecorderContextType {
   clearChatMessages: () => void;
   setSelectedTargetLanguage: (language: string) => void;
   setSelectedSpeaker: (speaker: string) => void;
-  handleRecordingStreamSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
-  handleRecordingDelayedStreamSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
-  handleNormalSubmit: (audioBlob: globalThis.Blob, playerAudioURL: string | null) => Promise<void>;
+  handleRecordingStreamSubmit: (
+    audioBlob: globalThis.Blob,
+    playerAudioURL: string | null,
+  ) => Promise<void>;
+  handleRecordingDelayedStreamSubmit: (
+    audioBlob: globalThis.Blob,
+    playerAudioURL: string | null,
+  ) => Promise<void>;
+  handleNormalSubmit: (
+    audioBlob: globalThis.Blob,
+    playerAudioURL: string | null,
+  ) => Promise<void>;
+  handleChunkedNormalSubmit: (
+    audioBlob: globalThis.Blob,
+    playerAudioURL: string | null,
+  ) => Promise<void>;
 }
 
 const RecorderContext = createContext<RecorderContextType | undefined>(
@@ -88,7 +109,10 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
     setChatMessages([]);
   };
 
-  const handleRecordingStreamSubmit = async (audioBlob: globalThis.Blob, playerAudioURL: string | null) => {
+  const handleRecordingStreamSubmit = async (
+    audioBlob: globalThis.Blob,
+    playerAudioURL: string | null,
+  ) => {
     try {
       const transcript = await getAudioTranscript(audioBlob);
 
@@ -107,7 +131,11 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
         // if (trimmedChunk && /[a-zA-Zऀ-ॿ]/.test(trimmedChunk)) {
         // }
       }
-      await getTextToSpeechStream(fullResponse, selectedTargetLanguage, selectedSpeaker);
+      await getTextToSpeechStream(
+        fullResponse,
+        selectedTargetLanguage,
+        selectedSpeaker,
+      );
       addChatMessage({ sender: "npc", content: fullResponse });
     } catch (error) {
       console.error("Error submitting recording:", error);
@@ -115,7 +143,10 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const handleRecordingDelayedStreamSubmit = async (audioBlob: globalThis.Blob, playerAudioURL: string | null) => {
+  const handleRecordingDelayedStreamSubmit = async (
+    audioBlob: globalThis.Blob,
+    playerAudioURL: string | null,
+  ) => {
     try {
       const transcript = await getAudioTranscript(audioBlob);
 
@@ -132,10 +163,14 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
       for await (const chunk of getOpenAIResponse(transcript)) {
         validChunk = validChunk + chunk;
         hasReceivedValidChunk = isValidChunk(validChunk);
-        if(hasReceivedValidChunk){
+        if (hasReceivedValidChunk) {
           fullResponse += validChunk;
           setNpcTranscript(fullResponse);
-          await getTextToSpeechStream(validChunk, selectedTargetLanguage, selectedSpeaker);
+          await getTextToSpeechStream(
+            validChunk,
+            selectedTargetLanguage,
+            selectedSpeaker,
+          );
           validChunk = "";
         }
       }
@@ -145,7 +180,10 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const handleNormalSubmit = async (audioBlob: globalThis.Blob, playerAudioURL: string | null) => {
+  const handleNormalSubmit = async (
+    audioBlob: globalThis.Blob,
+    playerAudioURL: string | null,
+  ) => {
     try {
       const transcript = await getAudioTranscript(audioBlob);
 
@@ -161,8 +199,49 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
         fullResponse += chunk;
       }
       setNpcTranscript(fullResponse);
-      await getTextToSpeech(fullResponse, selectedTargetLanguage, selectedSpeaker);
+      await getTextToSpeech(
+        fullResponse,
+        selectedTargetLanguage,
+        selectedSpeaker,
+      );
       addChatMessage({ sender: "npc", content: fullResponse });
+    } catch (error) {
+      console.error("Error submitting recording:", error);
+      throw error;
+    }
+  };
+
+  const handleChunkedNormalSubmit = async (
+    audioBlob: globalThis.Blob,
+    playerAudioURL: string | null,
+  ) => {
+    try {
+      const transcript = await getAudioTranscript(audioBlob);
+
+      setPlayerTranscript(transcript);
+      addChatMessage({ sender: "player", content: transcript });
+      if (playerAudioURL) {
+        URL.revokeObjectURL(playerAudioURL);
+      }
+      setRecordingData(null, null);
+
+      let fullResponse = "";
+      let validChunk = "";
+      let hasReceivedValidChunk = false;
+      for await (const chunk of getOpenAIResponse(transcript)) {
+        validChunk = validChunk + chunk;
+        hasReceivedValidChunk = isValidChunk(validChunk);
+        if (hasReceivedValidChunk) {
+          fullResponse += validChunk;
+          setNpcTranscript(fullResponse);
+          await getTextToSpeech(
+            validChunk,
+            selectedTargetLanguage,
+            selectedSpeaker,
+          );
+          validChunk = "";
+        }
+      }
     } catch (error) {
       console.error("Error submitting recording:", error);
       throw error;
@@ -192,6 +271,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
         handleRecordingStreamSubmit,
         handleRecordingDelayedStreamSubmit,
         handleNormalSubmit,
+        handleChunkedNormalSubmit,
       }}
     >
       {children}

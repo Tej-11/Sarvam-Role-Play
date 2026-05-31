@@ -16,6 +16,7 @@ function AppContent() {
     handleRecordingStreamSubmit,
     handleRecordingDelayedStreamSubmit,
     handleNormalSubmit,
+    handleChunkedNormalSubmit,
   } = useRecorderContext();
 
   const handleNormalClick = async () => {
@@ -57,7 +58,10 @@ function AppContent() {
     try {
       if (SubmitType === "normal") {
         await handleNormalSubmit(playerAudioBlob, playerAudioURL);
-      } else if (SubmitType === "stream") {
+      } else if (SubmitType === "chunkedNormal") {
+        await handleChunkedNormalSubmit(playerAudioBlob, playerAudioURL);
+      } 
+      else if (SubmitType === "stream") {
         await handleRecordingStreamSubmit(playerAudioBlob, playerAudioURL);
       } else if (SubmitType === "delayedStream") {
         await handleRecordingDelayedStreamSubmit(playerAudioBlob, playerAudioURL);
@@ -97,6 +101,9 @@ function AppContent() {
             <div className="button-group">
               <button onClick={() => handleSubmitClick("normal")} disabled={isSubmitting}>
                 {isSubmitting ? "Submitting..." : "Normal Submit"}
+              </button>
+              <button onClick={() => handleSubmitClick("chunkedNormal")} disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Chunked Normal Submit"}
               </button>
               <button onClick={() => handleSubmitClick("stream")} disabled={isSubmitting}>
                 {isSubmitting ? "Submitting..." : "Stream Submit"}

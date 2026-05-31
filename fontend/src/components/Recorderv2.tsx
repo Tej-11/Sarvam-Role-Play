@@ -10,7 +10,7 @@ export const ChatWindowRecorder = () => {
   const [timeDisplay, setTimeDisplay] = useState<String>("00:00");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingStreamSubmit, handleRecordingDelayedStreamSubmit, handleNormalSubmit } = useRecorderContext();
+  const { playerAudioURL, playerAudioBlob, recorderStatus, setRecordingData, updateRecorderStatus, handleRecordingStreamSubmit, handleRecordingDelayedStreamSubmit, handleNormalSubmit, handleChunkedNormalSubmit } = useRecorderContext();
 
   useEffect(() => {
     const audioRecorder = new AudioRecorder();
@@ -101,7 +101,10 @@ export const ChatWindowRecorder = () => {
     try {
       if (SubmitType === "normal") {
         await handleNormalSubmit(playerAudioBlob, playerAudioURL);
-      } else if (SubmitType === "stream") {
+      } else if (SubmitType === "chunkedNormal") {
+        await handleChunkedNormalSubmit(playerAudioBlob, playerAudioURL);
+      } 
+      else if (SubmitType === "stream") {
         await handleRecordingStreamSubmit(playerAudioBlob, playerAudioURL);
       } else if (SubmitType === "delayedStream") {
         await handleRecordingDelayedStreamSubmit(playerAudioBlob, playerAudioURL);
@@ -204,6 +207,13 @@ export const ChatWindowRecorder = () => {
             className={`${styles.submitBtn} ${isSubmitting ? styles.submitting : ""}`}
           >
             {isSubmitting ? "Submitting..." : "Normal Submit"}
+          </button>
+            <button
+            onClick={() => handleSubmitClick("chunkedNormal")}
+            disabled={isSubmitting}
+            className={`${styles.submitBtn} ${styles.delayedStreamBtn} ${isSubmitting ? styles.submitting : ""}`}
+          >
+            {isSubmitting ? "Submitting..." : "Chunked Normal Submit"}
           </button>
           <button
             onClick={() => handleSubmitClick("stream")}

@@ -23,6 +23,9 @@ export const getTextToSpeech = async (text: string, targetLanguage = 'en-IN', sp
     playerNode.buffer = decodedAudio;
     playerNode.connect(audioCtx.destination);
     playerNode.start(0);
+    await new Promise<void>((resolve) => {
+        playerNode.onended = () => resolve();
+    });
 }
 
 // ---------------------------------------------------------------------------
