@@ -174,6 +174,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
           validChunk = "";
         }
       }
+      addChatMessage({ sender: "npc", content: fullResponse });
     } catch (error) {
       console.error("Error submitting recording:", error);
       throw error;
@@ -242,6 +243,7 @@ export const AudioProvider: React.FC<{ children: ReactNode }> = ({
           validChunk = "";
         }
       }
+      addChatMessage({ sender: "npc", content: fullResponse });
     } catch (error) {
       console.error("Error submitting recording:", error);
       throw error;
